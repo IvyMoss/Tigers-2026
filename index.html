@@ -1,100 +1,1118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detroit Tigers 2026 Stats</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detroit Tigers 2026 Stats</title>
+  <style>
+    /* ── Detroit Tigers palette ─────────────────────────────────── */
+    :root {
+      --navy:   #0C2340;
+      --orange: #FA4616;
+      --white:  #FFFFFF;
+      --light:  #f0f4f8;
+      --gray:   #6b7280;
+      --border: #d1d5db;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--light);
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    /* ── Page header ─────────────────────────────────────────────── */
+    .page-header {
+      background: var(--navy);
+      color: var(--white);
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      border-bottom: 5px solid var(--orange);
+    }
+
+    .logo-d {
+      font-size: 3.2rem;
+      font-weight: 900;
+      color: var(--orange);
+      line-height: 1;
+      font-style: italic;
+      text-shadow: 2px 2px 0 rgba(0,0,0,.4);
+      user-select: none;
+    }
+
+    .header-text h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: .5px;
+    }
+
+    .header-text p {
+      font-size: .95rem;
+      color: #a0aec0;
+      margin-top: 2px;
+    }
+
+    /* ── Layout ─────────────────────────────────────────────────── */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    /* Two-column row for schedule/recent games */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 36px;
+    }
+    @media (max-width: 760px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+
+    /* ── Section cards ───────────────────────────────────────────── */
+    section {
+      background: var(--white);
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(12,35,64,.10);
+      overflow: hidden;
+    }
+
+    .section-header {
+      background: var(--navy);
+      padding: 14px 24px;
+      border-bottom: 3px solid var(--orange);
+    }
+
+    .section-header h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: .6px;
+      text-transform: uppercase;
+    }
+
+    /* ── Team stats grid ─────────────────────────────────────────── */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .stat-tile {
+      background: var(--white);
+      padding: 18px 12px;
+      text-align: center;
+    }
+
+    .stat-tile .label {
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 6px;
+    }
+
+    .stat-tile .value {
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    /* ── Sortable tables ─────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .875rem;
+    }
+
+    thead tr { background: var(--navy); color: var(--white); }
+
+    thead th {
+      padding: 10px 12px;
+      text-align: right;
+      font-weight: 600;
+      font-size: .78rem;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+
+    thead th:first-child { text-align: left; }
+
+    thead th:hover { background: #163459; }
+
+    thead th.sort-asc::after  { content: ' ▲'; color: var(--orange); font-size: .7rem; }
+    thead th.sort-desc::after { content: ' ▼'; color: var(--orange); font-size: .7rem; }
+
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:nth-child(even) { background: #f7f9fc; }
+    tbody tr:hover { background: #eaf0fb; }
+
+    tbody td {
+      padding: 9px 12px;
+      text-align: right;
+      white-space: nowrap;
+      color: #374151;
+    }
+
+    tbody td:first-child {
+      text-align: left;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    /* ── Schedule / game cards ───────────────────────────────────── */
+    .game-list {
+      padding: 8px 0;
+    }
+
+    .game-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: .88rem;
+      gap: 12px;
+    }
+
+    .game-row:last-child { border-bottom: none; }
+
+    .game-date {
+      font-size: .75rem;
+      color: var(--gray);
+      min-width: 80px;
+    }
+
+    .game-matchup {
+      flex: 1;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .game-venue {
+      font-size: .75rem;
+      color: var(--gray);
+      text-align: right;
+    }
+
+    .game-score {
+      font-weight: 700;
+      font-size: .95rem;
+      min-width: 60px;
+      text-align: right;
+    }
+
+    .score-win  { color: #16a34a; }
+    .score-loss { color: var(--orange); }
+
+    .badge {
+      display: inline-block;
+      font-size: .68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: .5px;
+      min-width: 28px;
+      text-align: center;
+    }
+
+    .badge-win  { background: #dcfce7; color: #16a34a; }
+    .badge-loss { background: #fff0ec; color: var(--orange); }
+    .badge-upcoming { background: #e0e7ff; color: #3730a3; }
+
+    /* ── Current / Next game hero ────────────────────────────────── */
+    .game-hero {
+      background: var(--navy);
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(12,35,64,.15);
+      overflow: hidden;
+    }
+
+    .game-hero-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      border-bottom: 3px solid var(--orange);
+    }
+
+    .game-hero-label {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #a0aec0;
+    }
+
+    .live-dot {
+      width: 9px; height: 9px;
+      background: #ef4444;
+      border-radius: 50%;
+      animation: pulse 1.2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .5; transform: scale(.8); }
+    }
+
+    .game-hero-body {
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .hero-team {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 80px;
+    }
+
+    .hero-team-name {
+      font-size: .8rem;
+      font-weight: 600;
+      color: #a0aec0;
+      letter-spacing: .4px;
+    }
+
+    .hero-score {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .hero-score.tigers { color: var(--orange); }
+
+    .hero-vs {
+      font-size: 1rem;
+      color: #4b5563;
+      font-weight: 600;
+    }
+
+    .hero-meta {
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .hero-meta-row {
+      font-size: .85rem;
+      color: #a0aec0;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-meta-row strong {
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    .hero-inning {
+      display: inline-block;
+      background: var(--orange);
+      color: var(--white);
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 12px;
+      letter-spacing: .5px;
+    }
+
+    #game-hero-wrap { display: none; }
+
+    /* ── Standings table ─────────────────────────────────────────── */
+    .standings-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+
+    .standings-table thead tr {
+      background: var(--navy);
+      color: var(--white);
+    }
+
+    .standings-table thead th {
+      padding: 10px 16px;
+      text-align: right;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .standings-table thead th:first-child { text-align: left; }
+
+    .standings-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+
+    .standings-table tbody tr:last-child { border-bottom: none; }
+
+    .standings-table tbody tr:hover { background: #eaf0fb; }
+
+    .standings-table tbody tr.is-tigers {
+      background: #fff8f5;
+      border-left: 4px solid var(--orange);
+    }
+
+    .standings-table tbody tr.is-tigers:hover { background: #ffede6; }
+
+    .standings-table tbody td {
+      padding: 11px 16px;
+      text-align: right;
+      color: #374151;
+      white-space: nowrap;
+    }
+
+    .standings-table tbody td:first-child {
+      text-align: left;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .standings-table tbody tr.is-tigers td:first-child {
+      color: var(--orange);
+    }
+
+    .streak-w { color: #16a34a; font-weight: 700; }
+    .streak-l { color: var(--orange); font-weight: 700; }
+
+    /* ── Loading / error ─────────────────────────────────────────── */
+    .status {
+      padding: 40px;
+      text-align: center;
+      color: var(--gray);
+      font-size: .95rem;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 28px; height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--orange);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin-bottom: 12px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error { color: var(--orange); font-weight: 600; }
+
+    /* ── Footer ──────────────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: .78rem;
+      color: var(--gray);
+    }
+  </style>
 </head>
-<body class="bg-gray-100 p-4 md:p-8 font-sans min-h-screen">
+<body>
 
-    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border-t-8" style="border-color: #FA4616;">
-        
-        <div class="bg-[#0C2340] p-6 text-center shadow-inner">
-            <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-widest uppercase">Detroit Tigers</h1>
-            <p class="text-[#FA4616] font-semibold mt-2 text-xl tracking-wide">2026 Season Stats</p>
-        </div>
+<div class="page-header">
+  <div class="logo-d">D</div>
+  <div class="header-text">
+    <h1>Detroit Tigers — 2026 Statistics</h1>
+    <p>Live data from the Official MLB Stats API</p>
+  </div>
+</div>
 
-        <div id="loading" class="p-12 text-center text-gray-500 font-medium animate-pulse">Fetching latest stats from MLB...</div>
-        <div id="error" class="hidden p-12 text-center text-red-500 font-bold"></div>
+<main>
 
-        <div id="stats-container" class="hidden p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 shadow-sm">
-                <h2 class="text-2xl font-bold text-[#0C2340] mb-4 border-b-2 border-gray-300 pb-2">Hitting</h2>
-                <ul id="hitting-stats" class="space-y-4"></ul>
-            </div>
-
-            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 shadow-sm">
-                <h2 class="text-2xl font-bold text-[#0C2340] mb-4 border-b-2 border-gray-300 pb-2">Pitching</h2>
-                <ul id="pitching-stats" class="space-y-4"></ul>
-            </div>
-
-        </div>
+  <!-- CURRENT / NEXT GAME HERO -->
+  <div id="game-hero-wrap">
+    <div class="game-hero">
+      <div class="game-hero-header">
+        <div id="hero-live-dot" class="live-dot" style="display:none"></div>
+        <span id="hero-label" class="game-hero-label">Loading…</span>
+      </div>
+      <div class="game-hero-body" id="hero-body">
+        <!-- filled by JS -->
+      </div>
     </div>
+  </div>
 
-    <script>
-        // API Endpoint for Tigers (116)
-        const ENDPOINT = 'https://statsapi.mlb.com/api/v1/teams/116/stats?season=2026&group=hitting,pitching&stats=season';
+  <!-- AL CENTRAL STANDINGS -->
+  <section>
+    <div class="section-header"><h2>AL Central Standings</h2></div>
+    <div id="standings-body" class="status"><div class="spinner"></div><br>Loading…</div>
+  </section>
 
-        async function fetchStats() {
-            try {
-                const response = await fetch(ENDPOINT);
-                if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
+  <!-- SCHEDULE ROW -->
+  <div class="two-col">
+    <section>
+      <div class="section-header"><h2>Recent Results</h2></div>
+      <div id="recent-games" class="status"><div class="spinner"></div><br>Loading…</div>
+    </section>
+    <section>
+      <div class="section-header"><h2>Upcoming Schedule</h2></div>
+      <div id="upcoming-games" class="status"><div class="spinner"></div><br>Loading…</div>
+    </section>
+  </div>
 
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('stats-container').classList.remove('hidden');
+  <!-- TEAM STATS -->
+  <section>
+    <div class="section-header"><h2>Team Statistics</h2></div>
+    <div id="team-hitting" class="status"><div class="spinner"></div><br>Loading…</div>
+  </section>
 
-                // Parse the MLB API response
-                data.stats.forEach(statGroup => {
-                    const groupName = statGroup.group.displayName; // 'hitting' or 'pitching'
-                    // If no splits exist yet (0 games played), default to an empty object
-                    const stats = statGroup.splits[0]?.stat || {};
-                    
-                    if (groupName === 'hitting') {
-                        renderStats('hitting-stats', [
-                            { label: 'Games Played', value: stats.gamesPlayed },
-                            { label: 'Batting Average', value: stats.avg },
-                            { label: 'Home Runs', value: stats.homeRuns },
-                            { label: 'Runs Batted In (RBI)', value: stats.rbi },
-                            { label: 'OPS', value: stats.ops }
-                        ]);
-                    } else if (groupName === 'pitching') {
-                        renderStats('pitching-stats', [
-                            { label: 'Wins', value: stats.wins },
-                            { label: 'Losses', value: stats.losses },
-                            { label: 'ERA', value: stats.era },
-                            { label: 'Strikeouts', value: stats.strikeOuts },
-                            { label: 'WHIP', value: stats.whip }
-                        ]);
-                    }
-                });
+  <!-- INDIVIDUAL BATTING -->
+  <section>
+    <div class="section-header"><h2>Individual Batting</h2></div>
+    <div id="batting-body" class="status"><div class="spinner"></div><br>Loading…</div>
+  </section>
 
-            } catch (error) {
-                document.getElementById('loading').classList.add('hidden');
-                const errorDiv = document.getElementById('error');
-                errorDiv.classList.remove('hidden');
-                errorDiv.innerText = "Error loading stats: " + error.message;
-            }
-        }
+  <!-- INDIVIDUAL PITCHING -->
+  <section>
+    <div class="section-header"><h2>Individual Pitching</h2></div>
+    <div id="pitching-body" class="status"><div class="spinner"></div><br>Loading…</div>
+  </section>
 
-        // Helper function to inject list items into the DOM
-        function renderStats(elementId, statList) {
-            const ul = document.getElementById(elementId);
-            statList.forEach(item => {
-                const li = document.createElement('li');
-                li.className = "flex justify-between items-center text-lg";
-                // Display '0' or 'N/A' if the stat hasn't accumulated yet
-                const displayValue = item.value !== undefined ? item.value : '-';
-                li.innerHTML = `<span class="text-gray-600 font-medium">${item.label}</span> 
-                                <span class="font-bold text-gray-900">${displayValue}</span>`;
-                ul.appendChild(li);
-            });
-        }
+</main>
 
-        // Run on load
-        fetchStats();
-    </script>
+<footer>
+  Data provided by the <a href="https://statsapi.mlb.com" style="color:var(--orange);">MLB Stats API</a>.
+  Detroit Tigers · Team ID 116 · 2026 Season
+</footer>
+
+<script>
+  const TEAM_ID = 116;
+  const SEASON  = 2026;
+  const BASE    = 'https://statsapi.mlb.com/api/v1';
+
+  // All 30 MLB team IDs → standard abbreviations
+  const TEAM_ABBR = {
+    108:'LAA', 109:'ARI', 110:'BAL', 111:'BOS', 112:'CHC',
+    113:'CIN', 114:'CLE', 115:'COL', 116:'DET', 117:'HOU',
+    118:'KC',  119:'LAD', 120:'WSH', 121:'NYM', 133:'OAK',
+    134:'PIT', 135:'SD',  136:'SEA', 137:'SF',  138:'STL',
+    139:'TB',  140:'TEX', 141:'TOR', 142:'MIN', 143:'PHI',
+    144:'ATL', 145:'CWS', 146:'MIA', 147:'NYY', 158:'MIL',
+  };
+
+  // Returns abbreviation from lookup, falls back to last word of name, then '?'
+  function teamAbbr(teamObj) {
+    if (!teamObj) return '?';
+    const byId = TEAM_ABBR[Number(teamObj.id)];
+    if (byId) return byId;
+    // fallback: last word of team name ("San Diego Padres" → "Padres")
+    return teamObj.name?.split(' ').pop() ?? '?';
+  }
+
+  // ── Formatting helpers ─────────────────────────────────────────
+  const fmt = (v, dec = 3) =>
+    v == null ? '—' : (typeof v === 'number' ? v.toFixed(dec) : v);
+
+  const fmtPct = v =>
+    v == null ? '—' : (typeof v === 'number' ? v.toFixed(3) : v);
+
+  function spinnerHTML() {
+    return '<div class="status"><div class="spinner"></div><br>Loading…</div>';
+  }
+
+  function errMsg(id, msg) {
+    document.getElementById(id).innerHTML =
+      `<div class="status"><span class="error">⚠ ${msg}</span></div>`;
+  }
+
+  // ── Sortable table helper ─────────────────────────────────────
+  // Attaches click handlers to all <th> in a table element.
+  // State is stored in the th dataset so toggling works correctly.
+  function makeSortable(table) {
+    const headers = table.querySelectorAll('thead th');
+    headers.forEach((th, colIndex) => {
+      th.dataset.dir = 'none';
+      th.title = 'Click to sort';
+      th.addEventListener('click', () => {
+        const ascending = th.dataset.dir !== 'desc';
+        // Reset other headers
+        headers.forEach(h => {
+          h.dataset.dir = 'none';
+          h.classList.remove('sort-asc', 'sort-desc');
+        });
+        th.dataset.dir = ascending ? 'desc' : 'asc';
+        th.classList.add(ascending ? 'sort-desc' : 'sort-asc');
+
+        const tbody = table.querySelector('tbody');
+        const rows  = Array.from(tbody.querySelectorAll('tr'));
+
+        rows.sort((a, b) => {
+          const aText = a.cells[colIndex]?.textContent.trim() ?? '';
+          const bText = b.cells[colIndex]?.textContent.trim() ?? '';
+          const aNum  = parseFloat(aText);
+          const bNum  = parseFloat(bText);
+          const numericSort = !isNaN(aNum) && !isNaN(bNum);
+          let cmp;
+          if (numericSort) {
+            cmp = aNum - bNum;
+          } else {
+            cmp = aText.localeCompare(bText);
+          }
+          // '—' cells sink to the bottom regardless of direction
+          if (aText === '—') return 1;
+          if (bText === '—') return -1;
+          return ascending ? -cmp : cmp;
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+      });
+    });
+  }
+
+  // ── TEAM STATS ────────────────────────────────────────────────
+  async function loadTeamStats() {
+    const el = document.getElementById('team-hitting');
+    try {
+      const [hitR, pitR] = await Promise.all([
+        fetch(`${BASE}/teams/${TEAM_ID}/stats?stats=season&group=hitting&season=${SEASON}`),
+        fetch(`${BASE}/teams/${TEAM_ID}/stats?stats=season&group=pitching&season=${SEASON}`)
+      ]);
+      const [hitData, pitData] = await Promise.all([hitR.json(), pitR.json()]);
+
+      const h = hitData?.stats?.[0]?.splits?.[0]?.stat;
+      const p = pitData?.stats?.[0]?.splits?.[0]?.stat;
+
+      if (!h && !p) { errMsg('team-hitting', 'No team data available yet.'); return; }
+
+      const tiles = [
+        { label: 'AVG',  value: h ? fmtPct(h.avg)          : '—' },
+        { label: 'OBP',  value: h ? fmtPct(h.obp)          : '—' },
+        { label: 'SLG',  value: h ? fmtPct(h.slg)          : '—' },
+        { label: 'OPS',  value: h ? fmtPct(h.ops)          : '—' },
+        { label: 'R',    value: h?.runs         ?? '—' },
+        { label: 'H',    value: h?.hits         ?? '—' },
+        { label: 'HR',   value: h?.homeRuns     ?? '—' },
+        { label: 'RBI',  value: h?.rbi          ?? '—' },
+        { label: 'SB',   value: h?.stolenBases  ?? '—' },
+        { label: 'SO',   value: h?.strikeOuts   ?? '—' },
+        { label: 'BB',   value: h?.baseOnBalls  ?? '—' },
+        { label: 'ERA',  value: p ? fmt(p.era, 2)           : '—' },
+        { label: 'WHIP', value: p ? fmt(p.whip, 3)          : '—' },
+        { label: 'W',    value: p?.wins         ?? '—' },
+        { label: 'L',    value: p?.losses       ?? '—' },
+        { label: 'SV',   value: p?.saves        ?? '—' },
+        { label: 'IP',   value: p ? fmt(p.inningsPitched, 1): '—' },
+        { label: 'K',    value: p?.strikeOuts   ?? '—' },
+        { label: 'P BB', value: p?.baseOnBalls  ?? '—' },
+        { label: 'P HR', value: p?.homeRuns     ?? '—' },
+      ];
+
+      el.innerHTML = `<div class="team-grid">${
+        tiles.map(t => `
+          <div class="stat-tile">
+            <div class="label">${t.label}</div>
+            <div class="value">${t.value}</div>
+          </div>`).join('')
+      }</div>`;
+
+    } catch (e) {
+      errMsg('team-hitting', 'Could not load team stats. ' + e.message);
+    }
+  }
+
+  // ── INDIVIDUAL BATTING ────────────────────────────────────────
+  async function loadBatting() {
+    const el = document.getElementById('batting-body');
+    try {
+      const r = await fetch(
+        `${BASE}/stats?stats=season&group=hitting&teamId=${TEAM_ID}&season=${SEASON}&playerPool=All&limit=50`
+      );
+      const data = await r.json();
+      const splits = data?.stats?.[0]?.splits ?? [];
+
+      if (!splits.length) { errMsg('batting-body', 'No batting data available yet.'); return; }
+
+      splits.sort((a, b) => (b.stat?.atBats ?? 0) - (a.stat?.atBats ?? 0));
+
+      el.innerHTML = `
+        <div class="table-wrap">
+          <table id="batting-table">
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>G</th><th>AB</th><th>R</th><th>H</th>
+                <th>2B</th><th>3B</th><th>HR</th><th>RBI</th>
+                <th>SB</th><th>BB</th><th>SO</th>
+                <th>AVG</th><th>OBP</th><th>SLG</th><th>OPS</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${splits.map(s => {
+                const pName = s.player?.fullName ?? '—';
+                const st    = s.stat ?? {};
+                return `<tr>
+                  <td>${pName}</td>
+                  <td>${st.gamesPlayed ?? '—'}</td>
+                  <td>${st.atBats      ?? '—'}</td>
+                  <td>${st.runs        ?? '—'}</td>
+                  <td>${st.hits        ?? '—'}</td>
+                  <td>${st.doubles     ?? '—'}</td>
+                  <td>${st.triples     ?? '—'}</td>
+                  <td>${st.homeRuns    ?? '—'}</td>
+                  <td>${st.rbi         ?? '—'}</td>
+                  <td>${st.stolenBases ?? '—'}</td>
+                  <td>${st.baseOnBalls ?? '—'}</td>
+                  <td>${st.strikeOuts  ?? '—'}</td>
+                  <td>${fmtPct(st.avg)}</td>
+                  <td>${fmtPct(st.obp)}</td>
+                  <td>${fmtPct(st.slg)}</td>
+                  <td>${fmtPct(st.ops)}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>`;
+
+      makeSortable(document.getElementById('batting-table'));
+    } catch (e) {
+      errMsg('batting-body', 'Could not load batting stats. ' + e.message);
+    }
+  }
+
+  // ── INDIVIDUAL PITCHING ───────────────────────────────────────
+  async function loadPitching() {
+    const el = document.getElementById('pitching-body');
+    try {
+      const r = await fetch(
+        `${BASE}/stats?stats=season&group=pitching&teamId=${TEAM_ID}&season=${SEASON}&playerPool=All&limit=50`
+      );
+      const data = await r.json();
+      const splits = data?.stats?.[0]?.splits ?? [];
+
+      if (!splits.length) { errMsg('pitching-body', 'No pitching data available yet.'); return; }
+
+      splits.sort((a, b) =>
+        parseFloat(b.stat?.inningsPitched ?? 0) - parseFloat(a.stat?.inningsPitched ?? 0)
+      );
+
+      el.innerHTML = `
+        <div class="table-wrap">
+          <table id="pitching-table">
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>G</th><th>GS</th><th>W</th><th>L</th><th>SV</th>
+                <th>IP</th><th>H</th><th>R</th><th>ER</th>
+                <th>HR</th><th>BB</th><th>K</th>
+                <th>ERA</th><th>WHIP</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${splits.map(s => {
+                const pName = s.player?.fullName ?? '—';
+                const st    = s.stat ?? {};
+                return `<tr>
+                  <td>${pName}</td>
+                  <td>${st.gamesPitched      ?? '—'}</td>
+                  <td>${st.gamesStarted      ?? '—'}</td>
+                  <td>${st.wins              ?? '—'}</td>
+                  <td>${st.losses            ?? '—'}</td>
+                  <td>${st.saves             ?? '—'}</td>
+                  <td>${st.inningsPitched    ?? '—'}</td>
+                  <td>${st.hits              ?? '—'}</td>
+                  <td>${st.runs              ?? '—'}</td>
+                  <td>${st.earnedRuns        ?? '—'}</td>
+                  <td>${st.homeRuns          ?? '—'}</td>
+                  <td>${st.baseOnBalls       ?? '—'}</td>
+                  <td>${st.strikeOuts        ?? '—'}</td>
+                  <td>${fmt(st.era,  2)}</td>
+                  <td>${fmt(st.whip, 3)}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>`;
+
+      makeSortable(document.getElementById('pitching-table'));
+    } catch (e) {
+      errMsg('pitching-body', 'Could not load pitching stats. ' + e.message);
+    }
+  }
+
+  // ── SCHEDULE helpers ──────────────────────────────────────────
+
+  // Use local date string to avoid UTC-flip issues for US timezones.
+  // e.g. 10pm ET is still March 31 locally but April 1 in UTC.
+  function localIsoDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function fmtGameDate(dateStr) {
+    if (!dateStr) return '—';
+    // Append T12:00:00 so the date isn't shifted by timezone
+    const d = new Date(dateStr + 'T12:00:00');
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
+  }
+
+  function fmtGameTime(gameDate) {
+    if (!gameDate) return '';
+    const d = new Date(gameDate);
+    if (isNaN(d)) return '';
+    return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+  }
+
+  // Fetch all regular-season games for a date range.
+  // sportId=1 = MLB (required). No season param — dates already scope it.
+  // gameType=R = regular season; omit if you want all game types.
+  async function fetchSchedule(startDate, endDate, extraParams = '') {
+    const url = `${BASE}/schedule?sportId=1&teamId=${TEAM_ID}`
+              + `&gameType=R&startDate=${startDate}&endDate=${endDate}`
+              + extraParams;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    const games = [];
+    for (const day of (data.dates ?? [])) {
+      for (const g of (day.games ?? [])) games.push(g);
+    }
+    return games;
+  }
+
+  // ── RECENT RESULTS ────────────────────────────────────────────
+  async function loadRecentGames() {
+    const el = document.getElementById('recent-games');
+    try {
+      const today = new Date();
+      const prior = new Date(today);
+      prior.setDate(prior.getDate() - 30);  // look back 30 days
+      const games = await fetchSchedule(localIsoDate(prior), localIsoDate(today));
+
+      // abstractGameState === "Final" covers "Final", "Game Over", "Completed Early"
+      const finished = games
+        .filter(g => g.status?.abstractGameState === 'Final')
+        .reverse()
+        .slice(0, 10);
+
+      if (!finished.length) {
+        el.innerHTML = '<div class="status" style="padding:24px">No recent results yet.</div>';
+        return;
+      }
+
+      el.innerHTML = '<div class="game-list">' + finished.map(g => {
+        const away = g.teams?.away;
+        const home = g.teams?.home;
+        const isTigersHome = Number(home?.team?.id) === TEAM_ID;
+        const tigers  = isTigersHome ? home : away;
+        const opp     = isTigersHome ? away : home;
+        const tigersR = tigers?.score ?? '?';
+        const oppR    = opp?.score    ?? '?';
+        const won     = tigers?.isWinner;
+        const wl      = won ? 'W' : 'L';
+        const oppName = teamAbbr(opp?.team);
+        const atHome  = isTigersHome ? 'vs' : '@';
+        const dateStr = g.officialDate ?? g.gameDate?.split('T')[0];
+
+        return `<div class="game-row">
+          <span class="game-date">${fmtGameDate(dateStr)}</span>
+          <span class="game-matchup">${atHome} ${oppName}</span>
+          <span class="game-score ${won ? 'score-win' : 'score-loss'}">${tigersR}–${oppR}</span>
+          <span class="badge ${won ? 'badge-win' : 'badge-loss'}">${wl}</span>
+        </div>`;
+      }).join('') + '</div>';
+
+    } catch (e) {
+      errMsg('recent-games', 'Could not load recent games. ' + e.message);
+    }
+  }
+
+  // ── UPCOMING SCHEDULE ─────────────────────────────────────────
+  async function loadUpcomingGames() {
+    const el = document.getElementById('upcoming-games');
+    try {
+      const today = new Date();
+      const future = new Date(today);
+      future.setDate(future.getDate() + 21);
+
+      // Include today in both queries so today's live/scheduled game appears here
+      const games = await fetchSchedule(localIsoDate(today), localIsoDate(future));
+
+      // abstractGameState is "Preview" (scheduled) or "Live" (in progress) — both show here
+      const upcoming = games
+        .filter(g => g.status?.abstractGameState !== 'Final')
+        .slice(0, 10);
+
+      // If nothing upcoming but there's a game today that's live, it should pass the filter above.
+      if (!upcoming.length) {
+        el.innerHTML = '<div class="status" style="padding:24px">No upcoming games found.</div>';
+        return;
+      }
+
+      el.innerHTML = '<div class="game-list">' + upcoming.map(g => {
+        const away = g.teams?.away;
+        const home = g.teams?.home;
+        const isTigersHome = Number(home?.team?.id) === TEAM_ID;
+        const opp     = isTigersHome ? away : home;
+        const oppName = teamAbbr(opp?.team);
+        const atHome  = isTigersHome ? 'vs' : '@';
+        const dateStr = g.officialDate ?? g.gameDate?.split('T')[0];
+        const timeStr = fmtGameTime(g.gameDate);
+        const venue   = isTigersHome ? 'Comerica Park' : '';
+        const isLive  = g.status?.abstractGameState === 'Live';
+        const liveScore = isLive
+          ? `<span class="game-score score-win" style="font-size:.8rem">LIVE ${away?.score ?? 0}–${home?.score ?? 0}</span>`
+          : '';
+
+        return `<div class="game-row">
+          <div>
+            <div class="game-date">${fmtGameDate(dateStr)}</div>
+            <div class="game-date" style="margin-top:2px">${timeStr}</div>
+          </div>
+          <span class="game-matchup">${atHome} ${oppName}</span>
+          ${liveScore}
+          <span class="game-venue">${venue}</span>
+          <span class="badge badge-upcoming">${isLive ? '🔴' : '⚾'}</span>
+        </div>`;
+      }).join('') + '</div>';
+
+    } catch (e) {
+      errMsg('upcoming-games', 'Could not load schedule. ' + e.message);
+    }
+  }
+
+  // ── CURRENT / NEXT GAME HERO ──────────────────────────────────
+  async function loadCurrentGame() {
+    const wrap  = document.getElementById('game-hero-wrap');
+    const label = document.getElementById('hero-label');
+    const dot   = document.getElementById('hero-live-dot');
+    const body  = document.getElementById('hero-body');
+
+    try {
+      const today = localIsoDate(new Date());
+
+      // Fetch today with linescore hydration for live score/inning
+      const todayGames = await fetchSchedule(today, today, '&hydrate=linescore');
+
+      let game = null;
+      let mode = null; // 'live' | 'today' | 'next'
+
+      const liveGame = todayGames.find(g => g.status?.abstractGameState === 'Live');
+      const todayGame = todayGames.find(g => g.status?.abstractGameState === 'Preview');
+
+      if (liveGame) {
+        game = liveGame;
+        mode = 'live';
+      } else if (todayGame) {
+        game = todayGame;
+        mode = 'today';
+      } else {
+        // No game today — find the next scheduled game
+        const tomorrow = localIsoDate(new Date(Date.now() + 86400000));
+        const lookahead = localIsoDate(new Date(Date.now() + 21 * 86400000));
+        const upcoming = await fetchSchedule(tomorrow, lookahead);
+        const next = upcoming.find(g => g.status?.abstractGameState === 'Preview'
+                                     || g.status?.abstractGameState === 'Live');
+        if (next) { game = next; mode = 'next'; }
+      }
+
+      if (!game) { wrap.style.display = 'none'; return; }
+
+      const away = game.teams?.away;
+      const home = game.teams?.home;
+      const isTigersHome  = Number(home?.team?.id) === TEAM_ID;
+      const tigersTeam    = isTigersHome ? home : away;
+      const oppTeam       = isTigersHome ? away : home;
+      const tigersName    = 'DET';
+      const oppName       = teamAbbr(oppTeam?.team);
+      const atHome        = isTigersHome ? 'vs' : '@';
+      const dateStr       = game.officialDate ?? today;
+      const timeStr       = fmtGameTime(game.gameDate);
+
+      // Scores (available for live/final, undefined for preview)
+      const tigersScore = tigersTeam?.score ?? null;
+      const oppScore    = oppTeam?.score    ?? null;
+
+      // Linescore info
+      const ls          = game.linescore;
+      const inningNum   = ls?.currentInning;
+      const inningState = ls?.inningState; // 'Top', 'Middle', 'Bottom', 'End'
+      const inningStr   = inningNum
+        ? `${inningState ?? ''} ${inningNum}`.trim()
+        : null;
+      const outs        = ls?.outs ?? null;
+
+      // Header label & live dot
+      if (mode === 'live') {
+        label.textContent = 'Live Game';
+        dot.style.display = 'block';
+      } else if (mode === 'today') {
+        label.textContent = 'Today\'s Game';
+        dot.style.display = 'none';
+      } else {
+        const d = new Date(dateStr + 'T12:00:00');
+        const friendly = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        label.textContent = `Next Game — ${friendly}`;
+        dot.style.display = 'none';
+      }
+
+      // Build body HTML
+      const scoreOrTime = mode === 'live'
+        ? `<div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+             <div class="hero-team">
+               <div class="hero-team-name">${tigersName}</div>
+               <div class="hero-score tigers">${tigersScore ?? '0'}</div>
+             </div>
+             <div class="hero-vs">–</div>
+             <div class="hero-team">
+               <div class="hero-team-name">${oppName}</div>
+               <div class="hero-score">${oppScore ?? '0'}</div>
+             </div>
+           </div>`
+        : `<div style="display:flex;align-items:center;gap:12px">
+             <div class="hero-team">
+               <div class="hero-team-name" style="font-size:.95rem;color:#fff">
+                 <strong style="color:var(--orange)">${tigersName}</strong>
+                 &nbsp;${atHome}&nbsp;
+                 <strong style="color:#fff">${oppName}</strong>
+               </div>
+             </div>
+           </div>`;
+
+      const metaRows = [];
+      if (mode === 'live' && inningStr) {
+        metaRows.push(`<div class="hero-meta-row"><span class="hero-inning">${inningStr}</span>${outs !== null ? `&nbsp;${outs} out${outs !== 1 ? 's' : ''}` : ''}</div>`);
+      }
+      if (mode !== 'live' && timeStr) {
+        metaRows.push(`<div class="hero-meta-row">🕐 <strong>${timeStr}</strong></div>`);
+      }
+      if (isTigersHome) {
+        metaRows.push(`<div class="hero-meta-row">🏟 <strong>Comerica Park</strong> · Detroit, MI</div>`);
+      }
+      if (mode === 'live') {
+        metaRows.push(`<div class="hero-meta-row" style="margin-top:4px;font-size:.75rem">Refresh page to update score</div>`);
+      }
+
+      body.innerHTML = `
+        ${scoreOrTime}
+        <div class="hero-meta">${metaRows.join('')}</div>`;
+
+      wrap.style.display = 'block';
+
+      // Auto-refresh every 90 seconds if live
+      if (mode === 'live') {
+        setTimeout(loadCurrentGame, 90000);
+      }
+
+    } catch(e) {
+      // Non-critical — silently fail; the rest of the page still works
+      console.warn('Current game load failed:', e.message);
+    }
+  }
+
+  // ── AL CENTRAL STANDINGS ─────────────────────────────────────
+  // AL = leagueId 103, AL Central = divisionId 202
+  async function loadStandings() {
+    const el = document.getElementById('standings-body');
+    try {
+      const r = await fetch(
+        `${BASE}/standings?leagueId=103&season=${SEASON}&standingsType=regularSeason`
+      );
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data = await r.json();
+
+      // Find AL Central record block (divisionId 202)
+      const alCentral = data.records?.find(
+        rec => Number(rec.division?.id) === 202
+      );
+
+      if (!alCentral) {
+        errMsg('standings-body', 'AL Central standings not available yet.');
+        return;
+      }
+
+      const teams = alCentral.teamRecords ?? [];
+
+      el.innerHTML = `
+        <table class="standings-table">
+          <thead>
+            <tr>
+              <th>Team</th>
+              <th>W</th>
+              <th>L</th>
+              <th>PCT</th>
+              <th>GB</th>
+              <th>Home</th>
+              <th>Away</th>
+              <th>Streak</th>
+              <th>L10</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${teams.map(t => {
+              const id      = Number(t.team?.id);
+              const isTig   = id === TEAM_ID;
+              const abbr    = teamAbbr(t.team);
+              const fullName = t.team?.name ?? abbr;
+              const w       = t.wins ?? '—';
+              const l       = t.losses ?? '—';
+              const pct     = t.winningPercentage ?? '—';
+              const gb      = t.gamesBack === '-' ? '—' : (t.gamesBack ?? '—');
+              const home    = t.records?.overallRecords?.find(r => r.type === 'home');
+              const away    = t.records?.overallRecords?.find(r => r.type === 'away');
+              const homeStr = home ? `${home.wins}-${home.losses}` : '—';
+              const awayStr = away ? `${away.wins}-${away.losses}` : '—';
+              const streak  = t.streak?.streakCode ?? '—';
+              const streakClass = streak.startsWith('W') ? 'streak-w'
+                                : streak.startsWith('L') ? 'streak-l' : '';
+              const last10  = t.records?.overallRecords?.find(r => r.type === 'lastTen');
+              const l10Str  = last10 ? `${last10.wins}-${last10.losses}` : '—';
+
+              return `<tr class="${isTig ? 'is-tigers' : ''}">
+                <td title="${fullName}">${isTig ? '🐯 ' : ''}${abbr}</td>
+                <td>${w}</td>
+                <td>${l}</td>
+                <td>${pct}</td>
+                <td>${isTig ? '<strong>—</strong>' : gb}</td>
+                <td>${homeStr}</td>
+                <td>${awayStr}</td>
+                <td class="${streakClass}">${streak}</td>
+                <td>${l10Str}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+
+    } catch (e) {
+      errMsg('standings-body', 'Could not load standings. ' + e.message);
+    }
+  }
+
+  // ── Boot ──────────────────────────────────────────────────────
+  loadCurrentGame();
+  loadStandings();
+  loadRecentGames();
+  loadUpcomingGames();
+  loadTeamStats();
+  loadBatting();
+  loadPitching();
+</script>
 </body>
 </html>
