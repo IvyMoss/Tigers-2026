@@ -1051,7 +1051,7 @@
       const teams = alCentral.teamRecords ?? [];
 
       el.innerHTML = `
-        <table class="standings-table">
+        <div class="table-wrap"><table class="standings-table">
           <thead>
             <tr>
               <th>Team</th>
@@ -1074,7 +1074,8 @@
               const w       = t.wins ?? '—';
               const l       = t.losses ?? '—';
               const pct     = t.winningPercentage ?? '—';
-              const gb      = t.gamesBack === '-' ? '—' : (t.gamesBack ?? '—');
+              // API returns '-' for the division leader; show '—' for them, actual number for rest
+              const gb      = (!t.gamesBack || t.gamesBack === '-') ? '—' : t.gamesBack;
               const home    = t.records?.overallRecords?.find(r => r.type === 'home');
               const away    = t.records?.overallRecords?.find(r => r.type === 'away');
               const homeStr = home ? `${home.wins}-${home.losses}` : '—';
@@ -1090,7 +1091,7 @@
                 <td>${w}</td>
                 <td>${l}</td>
                 <td>${pct}</td>
-                <td>${isTig ? '<strong>—</strong>' : gb}</td>
+                <td>${gb}</td>
                 <td>${homeStr}</td>
                 <td>${awayStr}</td>
                 <td class="${streakClass}">${streak}</td>
@@ -1098,7 +1099,7 @@
               </tr>`;
             }).join('')}
           </tbody>
-        </table>`;
+        </table></div>`;
 
     } catch (e) {
       errMsg('standings-body', 'Could not load standings. ' + e.message);
