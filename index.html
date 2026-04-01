@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detroit Tigers 2026 Stats</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4 md:p-8 font-sans min-h-screen">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border-t-8" style="border-color: #FA4616;">
+        
+        <div class="bg-[#0C2340] p-6 text-center shadow-inner">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-widest uppercase">Detroit Tigers</h1>
+            <p class="text-[#FA4616] font-semibold mt-2 text-xl tracking-wide">2026 Season Stats</p>
+        </div>
+
+        <div id="loading" class="p-12 text-center text-gray-500 font-medium animate-pulse">Fetching latest stats from MLB...</div>
+        <div id="error" class="hidden p-12 text-center text-red-500 font-bold"></div>
+
+        <div id="stats-container" class="hidden p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-[#0C2340] mb-4 border-b-2 border-gray-300 pb-2">Hitting</h2>
+                <ul id="hitting-stats" class="space-y-4"></ul>
+            </div>
+
+            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-[#0C2340] mb-4 border-b-2 border-gray-300 pb-2">Pitching</h2>
+                <ul id="pitching-stats" class="space-y-4"></ul>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // API Endpoint for Tigers (116)
+        const ENDPOINT = 'https://statsapi.mlb.com/api/v1/teams/116/stats?season=2026&group=hitting,pitching&stats=season';
+
+        async function fetchStats() {
+            try {
+                const response = await fetch(ENDPOINT);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('stats-container').classList.remove('hidden');
+
+                // Parse the MLB API response
+                data.stats.forEach(statGroup => {
+                    const groupName = statGroup.group.displayName; // 'hitting' or 'pitching'
+                    // If no splits exist yet (0 games played), default to an empty object
+                    const stats = statGroup.splits[0]?.stat || {};
+                    
+                    if (groupName === 'hitting') {
+                        renderStats('hitting-stats', [
+                            { label: 'Games Played', value: stats.gamesPlayed },
+                            { label: 'Batting Average', value: stats.avg },
+                            { label: 'Home Runs', value: stats.homeRuns },
+                            { label: 'Runs Batted In (RBI)', value: stats.rbi },
+                            { label: 'OPS', value: stats.ops }
+                        ]);
+                    } else if (groupName === 'pitching') {
+                        renderStats('pitching-stats', [
+                            { label: 'Wins', value: stats.wins },
+                            { label: 'Losses', value: stats.losses },
+                            { label: 'ERA', value: stats.era },
+                            { label: 'Strikeouts', value: stats.strikeOuts },
+                            { label: 'WHIP', value: stats.whip }
+                        ]);
+                    }
+                });
+
+            } catch (error) {
+                document.getElementById('loading').classList.add('hidden');
+                const errorDiv = document.getElementById('error');
+                errorDiv.classList.remove('hidden');
+                errorDiv.innerText = "Error loading stats: " + error.message;
+            }
+        }
+
+        // Helper function to inject list items into the DOM
+        function renderStats(elementId, statList) {
+            const ul = document.getElementById(elementId);
+            statList.forEach(item => {
+                const li = document.createElement('li');
+                li.className = "flex justify-between items-center text-lg";
+                // Display '0' or 'N/A' if the stat hasn't accumulated yet
+                const displayValue = item.value !== undefined ? item.value : '-';
+                li.innerHTML = `<span class="text-gray-600 font-medium">${item.label}</span> 
+                                <span class="font-bold text-gray-900">${displayValue}</span>`;
+                ul.appendChild(li);
+            });
+        }
+
+        // Run on load
+        fetchStats();
+    </script>
+</body>
+</html>
