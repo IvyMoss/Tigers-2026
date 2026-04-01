@@ -424,6 +424,53 @@
 
     .error { color: var(--orange); font-weight: 600; }
 
+    /* ── 40-Man Roster Changes ───────────────────────────────────── */
+    .roster-note {
+      padding: 14px 20px;
+      font-size: .85rem;
+      color: var(--gray);
+    }
+
+    .roster-since {
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: var(--gray);
+      padding: 10px 20px 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .roster-change {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: .85rem;
+    }
+
+    .roster-change:last-child { border-bottom: none; }
+
+    .change-icon {
+      font-size: 1rem;
+      font-weight: 900;
+      width: 18px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .roster-change.added   .change-icon { color: #16a34a; }
+    .roster-change.removed .change-icon { color: var(--orange); }
+    .roster-change.status-change .change-icon { color: #6366f1; }
+
+    .change-name { font-weight: 600; color: var(--navy); min-width: 160px; }
+    .change-pos  { font-size: .75rem; color: var(--gray); min-width: 36px; }
+    .change-detail { font-size: .82rem; color: #4b5563; }
+
+    .roster-change.added   .change-detail { color: #16a34a; }
+    .roster-change.removed .change-detail { color: var(--orange); }
+
     /* ── Footer ──────────────────────────────────────────────────── */
     footer {
       text-align: center;
@@ -492,6 +539,12 @@
   <section>
     <div class="section-header"><h2>Individual Pitching</h2></div>
     <div id="pitching-body" class="status"><div class="spinner"></div><br>Loading…</div>
+  </section>
+
+  <!-- 40-MAN ROSTER CHANGES -->
+  <section>
+    <div class="section-header"><h2>40-Man Roster Changes</h2></div>
+    <div id="roster-changes" class="status"><div class="spinner"></div><br>Loading…</div>
   </section>
 
 </main>
@@ -1106,6 +1159,125 @@
     }
   }
 
+  // ── 40-MAN ROSTER CHANGES ────────────────────────────────────
+  // Fetches the full 40-man roster, compares it to a snapshot stored in
+  // localStorage, and surfaces any adds, removals, or status changes.
+  async function loadRosterChanges() {
+    const el = document.getElementById('roster-changes');
+    const CACHE_KEY = 'det_tigers_40man_v1';
+
+    try {
+      const r = await fetch(
+        `${BASE}/teams/${TEAM_ID}/roster/Full?season=${SEASON}`
+      );
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data = await r.json();
+      const roster = data.roster ?? [];
+
+      // Build current snapshot keyed by person ID
+      const current = {};
+      for (const p of roster) {
+        const id = p.person?.id;
+        if (!id) continue;
+        current[id] = {
+          name:     p.person?.fullName ?? 'Unknown',
+          status:   p.status?.description ?? 'Active',
+          position: p.position?.abbreviation ?? '—',
+        };
+      }
+
+      // Load previous snapshot from localStorage
+      let prev = null;
+      let prevTimestamp = null;
+      try {
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+        if (cached?.snapshot) {
+          prev = cached.snapshot;
+          prevTimestamp = cached.timestamp;
+        }
+      } catch (_) {}
+
+      // Always save current snapshot so next load can diff against it
+      localStorage.setItem(CACHE_KEY, JSON.stringify({
+        snapshot:  current,
+        timestamp: new Date().toISOString(),
+      }));
+
+      // ── First visit: no previous snapshot to compare against ──
+      if (!prev) {
+        el.innerHTML = `<div class="roster-note">
+          📋 Snapshot saved — <strong>${roster.length}</strong> players currently on the 40-man roster.
+          Reload the page later to see any changes.
+        </div>`;
+        return;
+      }
+
+      // ── Compute diff ──────────────────────────────────────────
+      const added = [], removed = [], statusChanged = [];
+
+      for (const [id, p] of Object.entries(current)) {
+        if (!prev[id]) {
+          added.push(p);
+        } else if (prev[id].status !== p.status) {
+          statusChanged.push({ ...p, prevStatus: prev[id].status });
+        }
+      }
+      for (const [id, p] of Object.entries(prev)) {
+        if (!current[id]) removed.push(p);
+      }
+
+      const lastCheckedStr = prevTimestamp
+        ? new Date(prevTimestamp).toLocaleString('en-US', {
+            month: 'short', day: 'numeric',
+            hour: 'numeric', minute: '2-digit'
+          })
+        : 'your last visit';
+
+      const totalChanges = added.length + removed.length + statusChanged.length;
+
+      if (totalChanges === 0) {
+        el.innerHTML = `<div class="roster-note">
+          ✅ No 40-man roster changes since <strong>${lastCheckedStr}</strong>.
+          (${roster.length} players on roster)
+        </div>`;
+        return;
+      }
+
+      // ── Render changes ────────────────────────────────────────
+      let html = `<div class="roster-since">Changes since ${lastCheckedStr}</div>`;
+
+      for (const p of added) {
+        html += `<div class="roster-change added">
+          <span class="change-icon">+</span>
+          <span class="change-name">${p.name}</span>
+          <span class="change-pos">${p.position}</span>
+          <span class="change-detail">Added to 40-man roster</span>
+        </div>`;
+      }
+      for (const p of removed) {
+        html += `<div class="roster-change removed">
+          <span class="change-icon">−</span>
+          <span class="change-name">${p.name}</span>
+          <span class="change-pos">${p.position}</span>
+          <span class="change-detail">Removed from 40-man roster</span>
+        </div>`;
+      }
+      for (const p of statusChanged) {
+        html += `<div class="roster-change status-change">
+          <span class="change-icon">↔</span>
+          <span class="change-name">${p.name}</span>
+          <span class="change-pos">${p.position}</span>
+          <span class="change-detail">${p.prevStatus} → ${p.status}</span>
+        </div>`;
+      }
+
+      el.innerHTML = html;
+
+    } catch (e) {
+      errMsg('roster-changes', 'Could not load roster. ' + e.message);
+    }
+  }
+
   // ── Boot ──────────────────────────────────────────────────────
   loadCurrentGame();
   loadStandings();
@@ -1114,6 +1286,7 @@
   loadTeamStats();
   loadBatting();
   loadPitching();
+  loadRosterChanges();
 </script>
 </body>
 </html>
